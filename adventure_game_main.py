@@ -1,8 +1,11 @@
 # this file is the main file for the program
 #-----------------------------------------
 # import the required modules
-import random # import the random module
-import time # import the time module
+import random
+import time
+import os
+from sshkeyboard import listen_keyboard, stop_listening
+from threading import Thread
 
 # create constant variables for the program
 gameOver = False # create a variable to control the game loop
@@ -27,60 +30,84 @@ exitX = random.randint(0,4)
 exitY = random.randint(0,4)
 gameBoard[exitX][exitY] = 5
 
+toprints = [] # Setup the blank lisst of things that will be printed
+
 # ----------------------------------------- SET UP THE FUNCTIONS -----------------------------------------
 # create the def() functions for the program here
 def printBoard():
-    for row in gameBoard:
-        print(row)
+    print('\033[2J\033[0;0H' + '\n'.join([','.join([str(j) for j in i]) for i in gameBoard]) + '\n\n' + '\n'.join(toprints), end='')
 
-def movePlayer():
+def newprint(txt):
+    toprints.append(txt)
+
+def movePlayer(direction):
     global playerX, playerY
-    direction = input('Enter the direction you want to move (N,S,E,W): ')
     direction = direction.lower()
-    if direction == 'n':
+    if direction == 'w':
         if playerX > 0:
             gameBoard[playerX][playerY] = 7
             playerX -= 1
             gameBoard[playerX][playerY] = 1
         else:
-            print('You cannot move in that direction')
+            newprint('You cannot move in that direction')
     elif direction == 's':
         if playerX < 4:
             gameBoard[playerX][playerY] = 7
             playerX += 1
             gameBoard[playerX][playerY] = 1
         else:
-            print('You cannot move in that direction')
-    elif direction == 'e':
+            newprint('You cannot move in that direction')
+    elif direction == 'd':
         if playerY < 4:
             gameBoard[playerX][playerY] = 7
             playerY += 1
             gameBoard[playerX][playerY] = 1
         else:
-            print('You cannot move in that direction')
-    elif direction == 'w':
+            newprint('You cannot move in that direction')
+    elif direction == 'a':
         if playerY > 0:
             gameBoard[playerX][playerY] = 7
             playerY -= 1
             gameBoard[playerX][playerY] = 1
         else:
-            print('You cannot move in that direction')
-    else:
-        print('I do not understand that direction')
+            newprint('You cannot move in that direction')
+    
+    checkExit()
     
 
 #check if the player has reached the exit
 def checkExit():
     global gameOver
     if playerX == exitX and playerY == exitY:
-        print('You have reached the exit')
+        newprint('You have reached the exit')
         gameOver = True
+    if gameOver:
+        newprint('Game over!')
+
+def onpress(key):
+    global toprints
+    toprints = []
+    if key in 'wsad':
+        movePlayer(key)
+    printBoard()
 
 # ----------------------------------------- MAIN LOOP -----------------------------------------
 # create the main loop for the program here
-while gameOver == False:
-    printBoard()
-    movePlayer()
-    checkExit()
-    time.sleep(1)
-print('Game over!')
+def mainloop():
+    try:
+        checkExit()
+    except KeyboardInterrupt:
+        pass
+    stop_listening()
+
+Thread(target=mainloop, name='Main game').start()
+
+os.system('cls' if os.name == 'nt' else 'clear') # Clear the terminal
+printBoard()
+
+listen_keyboard(
+    on_press=onpress,
+    delay_second_char=0,
+    delay_other_chars=0,
+    until=None
+)
