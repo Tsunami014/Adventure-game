@@ -40,7 +40,8 @@ toprints = [] # Setup the blank lisst of things that will be printed
 # ----------------------------------------- SET UP THE FUNCTIONS -----------------------------------------
 # create the def() functions for the program here
 def printBoard():
-    print('\033[2J\033[0;0H' + '\n'.join([''.join([(chars[gameBoard[i][j]] if (i, j) in foundBoard else '?') for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n\n' + '\n'.join(toprints), end='')
+    stats = f"Player health: {playerHealth}"
+    print('\033[2J\033[0;0H' + '\n'.join([''.join([(chars[gameBoard[i][j]] if (i, j) in foundBoard else '?') for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n' + stats + '\n\n' + '\n'.join(toprints), end='')
 
 def newprint(txt):
     toprints.append(str(txt))
