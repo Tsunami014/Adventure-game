@@ -2,13 +2,10 @@
 #-----------------------------------------
 # import the required modules
 import random
-import time
 import os
 from sshkeyboard import listen_keyboard, stop_listening
-from threading import Thread
 
 # create constant variables for the program
-gameOver = False # create a variable to control the game loop
 playerHealth = 100 # eate a variable to store the player's health
 playerAttack = 10 # create a variable to store the player's attack power
 
@@ -31,9 +28,7 @@ playerY = 2
 gameBoard[playerY][playerX] = 1
 
 # place the exit in a random location
-exitX = random.randint(0,4)
-exitY = random.randint(0,4)
-gameBoard[exitY][exitX] = 5
+gameBoard[random.randint(0,4)][random.randint(0,4)] = 5
 
 toprints = [] # Setup the blank lisst of things that will be printed
 
@@ -62,6 +57,15 @@ def findNewSquares():
     check(md(0, -1))
     check(md(1, -1))
 
+def EndGame(win):
+    newprint('Game over! You %s!'%('win' if win else 'loose'))
+    stop_listening()
+
+def movedOn(typ):
+    if typ == 5:
+        newprint('You have reached the exit!')
+        EndGame(True)
+
 def moveBy(byx, byy):
     global playerX, playerY
     x, y = playerX + byx, playerY + byy
@@ -74,6 +78,7 @@ def moveBy(byx, byy):
         return
     gameBoard[playerY][playerX] = 7
     playerX, playerY = x, y
+    movedOn(newPos)
     gameBoard[playerY][playerX] = 1
 
 def movePlayer(direction):
@@ -87,17 +92,6 @@ def movePlayer(direction):
     elif direction == 'a':
         moveBy(-1, 0)
     findNewSquares()
-    checkExit()
-    
-
-#check if the player has reached the exit
-def checkExit():
-    global gameOver
-    if playerX == exitX and playerY == exitY:
-        newprint('You have reached the exit')
-        gameOver = True
-    if gameOver:
-        newprint('Game over!')
 
 def onpress(key):
     global toprints
@@ -108,19 +102,14 @@ def onpress(key):
 
 # ----------------------------------------- MAIN LOOP -----------------------------------------
 # create the main loop for the program here
-def mainloop():
-    try:
-        checkExit()
-    except KeyboardInterrupt:
-        pass
-    stop_listening()
-
-findNewSquares()
-Thread(target=mainloop, name='Main game').start()
 
 os.system('cls' if os.name == 'nt' else 'clear') # Clear the terminal
+
+# Initialise the board
+findNewSquares()
 printBoard()
 
+# Start the game loop!
 listen_keyboard(
     on_press=onpress,
     delay_second_char=0,
