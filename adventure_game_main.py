@@ -13,17 +13,19 @@ playerHealth = 100 # eate a variable to store the player's health
 playerAttack = 10 # create a variable to store the player's attack power
 
 #----------------------------------------- SET UP THE GAME BOARD -----------------------------------------
-#create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 7=visited
+#create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 9 = wall
 gameBoard = [[0,0,0,0,0],
-             [0,0,0,0,0],
+             [0,9,0,9,0],
              [0,0,0,0,0],
              [0,0,0,0,0],
              [0,0,0,0,0]]
 
+foundBoard = [] # The board that you have discovered
+
 # place the player in the middle of the game board
 playerX = 2
 playerY = 2
-gameBoard[playerX][playerY] = 1
+gameBoard[playerY][playerX] = 1
 
 # place the exit in a random location
 exitX = random.randint(0,4)
@@ -35,43 +37,49 @@ toprints = [] # Setup the blank lisst of things that will be printed
 # ----------------------------------------- SET UP THE FUNCTIONS -----------------------------------------
 # create the def() functions for the program here
 def printBoard():
-    print('\033[2J\033[0;0H' + '\n'.join([','.join([str(j) for j in i]) for i in gameBoard]) + '\n\n' + '\n'.join(toprints), end='')
+    print('\033[2J\033[0;0H' + '\n'.join([','.join([(str(gameBoard[i][j]) if (i, j) in foundBoard else '?') for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n\n' + '\n'.join(toprints), end='')
 
 def newprint(txt):
     toprints.append(txt)
 
-def movePlayer(direction):
+def findNewSquares():
+    playerPos = [playerY, playerX]
+    def check(pos):
+        if tuple(pos) not in foundBoard:
+            foundBoard.append(tuple(pos))
+    def md(x, y): # MoDify
+        return [playerPos[0] + y, playerPos[1] + x]
+    check(playerPos)
+    check(md(1, 0))
+    check(md(1, 1))
+    check(md(0, 1))
+    check(md(-1, 1))
+    check(md(-1, 0))
+    check(md(-1, -1))
+    check(md(0, -1))
+    check(md(1, -1))
+
+def moveBy(byx, byy):
     global playerX, playerY
+    x, y = playerX + byx, playerY + byy
+    if x < 0 or x > 4 or y < 0 or y > 4:
+        newprint('You cannot move in that direction')
+        return
+    gameBoard[playerY][playerX] = 7
+    playerX, playerY = x, y
+    gameBoard[playerY][playerX] = 1
+
+def movePlayer(direction):
     direction = direction.lower()
     if direction == 'w':
-        if playerX > 0:
-            gameBoard[playerX][playerY] = 7
-            playerX -= 1
-            gameBoard[playerX][playerY] = 1
-        else:
-            newprint('You cannot move in that direction')
+        moveBy(0, -1)
     elif direction == 's':
-        if playerX < 4:
-            gameBoard[playerX][playerY] = 7
-            playerX += 1
-            gameBoard[playerX][playerY] = 1
-        else:
-            newprint('You cannot move in that direction')
+        moveBy(0, 1)
     elif direction == 'd':
-        if playerY < 4:
-            gameBoard[playerX][playerY] = 7
-            playerY += 1
-            gameBoard[playerX][playerY] = 1
-        else:
-            newprint('You cannot move in that direction')
+        moveBy(1, 0)
     elif direction == 'a':
-        if playerY > 0:
-            gameBoard[playerX][playerY] = 7
-            playerY -= 1
-            gameBoard[playerX][playerY] = 1
-        else:
-            newprint('You cannot move in that direction')
-    
+        moveBy(-1, 0)
+    findNewSquares()
     checkExit()
     
 
@@ -100,6 +108,7 @@ def mainloop():
         pass
     stop_listening()
 
+findNewSquares()
 Thread(target=mainloop, name='Main game').start()
 
 os.system('cls' if os.name == 'nt' else 'clear') # Clear the terminal
