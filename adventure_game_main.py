@@ -43,7 +43,7 @@ def printBoard():
     print('\033[2J\033[0;0H' + '\n'.join([''.join([(chars[gameBoard[i][j]] if (i, j) in foundBoard else '?') for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n\n' + '\n'.join(toprints), end='')
 
 def newprint(txt):
-    toprints.append(txt)
+    toprints.append(str(txt))
 
 def findNewSquares():
     playerPos = [playerY, playerX]
@@ -67,6 +67,10 @@ def moveBy(byx, byy):
     x, y = playerX + byx, playerY + byy
     if x < 0 or x > 4 or y < 0 or y > 4:
         newprint('You cannot move in that direction')
+        return
+    newPos = gameBoard[y][x]
+    if newPos == 9:
+        newprint('You cannot move there - there is a wall in the way!')
         return
     gameBoard[playerY][playerX] = 7
     playerX, playerY = x, y
