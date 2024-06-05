@@ -27,8 +27,13 @@ playerX = 2
 playerY = 2
 gameBoard[playerY][playerX] = 1
 
-# place the exit in a random location
-gameBoard[random.randint(0,4)][random.randint(0,4)] = 5
+# place the exit in a random location that does not already have something on it
+toputx = random.randint(0,4)
+toputy = random.randint(0,4)
+while not gameBoard[toputy][toputx] == 0:
+    toputx = random.randint(0,4)
+    toputy = random.randint(0,4)
+gameBoard[toputy][toputx] = 5
 
 toprints = [] # Setup the blank lisst of things that will be printed
 
