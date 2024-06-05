@@ -11,11 +11,11 @@ playerAttack = 10 # create a variable to store the player's attack power
 
 #----------------------------------------- SET UP THE GAME BOARD -----------------------------------------
 #create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 7 = been there, 8 = UnImplemented 9 = wall
-gameBoard = [[0,0,0,0,0],
-             [0,9,0,9,0],
-             [0,0,0,0,0],
-             [0,0,0,0,0],
-             [0,0,0,0,0]]
+gameBoard = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+             [0,9,1,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0],
+             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
 # ! Means not implemented
 chars = [" ", "Y", "E", "$", "^", "/", "B", ":", "!", "#", "?"] # Characters that correlate with the numbers with "?" at the end
@@ -23,18 +23,18 @@ ColourChars = [" ", "\033[96mY", "\033[32mE", "\033[93m$", "\033[32m^", "\033[94
 
 foundBoard = [] # The board that you have discovered
 
-# place the player in the middle of the game board
-playerX = 2
-playerY = 2
-gameBoard[playerY][playerX] = 1
+# Find the position of the player in the board and set the players' position to that
+playerY = [any([j == 1 for j in i]) for i in gameBoard].index(True)
+playerX = gameBoard[playerY].index(1)
 
 # place the exit in a random location that does not already have something on it
-toputx = random.randint(0,4)
-toputy = random.randint(0,4)
-while not gameBoard[toputy][toputx] == 0:
-    toputx = random.randint(0,4)
-    toputy = random.randint(0,4)
-gameBoard[toputy][toputx] = 5
+# Commented out to have a fixed exit
+# toputx = random.randint(0,4)
+# toputy = random.randint(0,4)
+# while not gameBoard[toputy][toputx] == 0:
+#     toputx = random.randint(0,4)
+#     toputy = random.randint(0,4)
+# gameBoard[toputy][toputx] = 5
 
 toprints = [] # Setup the blank lisst of things that will be printed
 
@@ -76,7 +76,7 @@ def movedOn(typ):
 def moveBy(byx, byy):
     global playerX, playerY
     x, y = playerX + byx, playerY + byy
-    if x < 0 or x > 4 or y < 0 or y > 4:
+    if x < 0 or x > len(gameBoard[y]) or y < 0 or y > len(gameBoard):
         newprint('You cannot move in that direction')
         return
     newPos = gameBoard[y][x]
