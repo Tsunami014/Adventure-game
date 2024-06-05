@@ -13,12 +13,15 @@ playerHealth = 100 # eate a variable to store the player's health
 playerAttack = 10 # create a variable to store the player's attack power
 
 #----------------------------------------- SET UP THE GAME BOARD -----------------------------------------
-#create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 9 = wall
+#create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 7 = been there, 9 = wall
 gameBoard = [[0,0,0,0,0],
              [0,9,0,9,0],
              [0,0,0,0,0],
              [0,0,0,0,0],
              [0,0,0,0,0]]
+
+# ! Means not implemented
+chars = [" ", "Y", "E", "$", "^", "/", "B", "=", "!", "#"] # Characters that correlate with the numbers
 
 foundBoard = [] # The board that you have discovered
 
@@ -30,14 +33,14 @@ gameBoard[playerY][playerX] = 1
 # place the exit in a random location
 exitX = random.randint(0,4)
 exitY = random.randint(0,4)
-gameBoard[exitX][exitY] = 5
+gameBoard[exitY][exitX] = 5
 
 toprints = [] # Setup the blank lisst of things that will be printed
 
 # ----------------------------------------- SET UP THE FUNCTIONS -----------------------------------------
 # create the def() functions for the program here
 def printBoard():
-    print('\033[2J\033[0;0H' + '\n'.join([','.join([(str(gameBoard[i][j]) if (i, j) in foundBoard else '?') for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n\n' + '\n'.join(toprints), end='')
+    print('\033[2J\033[0;0H' + '\n'.join([''.join([(chars[gameBoard[i][j]] if (i, j) in foundBoard else '?') for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n\n' + '\n'.join(toprints), end='')
 
 def newprint(txt):
     toprints.append(txt)
