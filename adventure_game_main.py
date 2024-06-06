@@ -11,11 +11,11 @@ playerAttack = 10 # create a variable to store the player's attack power
 
 #----------------------------------------- SET UP THE GAME BOARD -----------------------------------------
 #create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 7 = been there, 8 = UnImplemented 9 = wall
-gameBoard = [[0,3,0,0,9,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+gameBoard = [[0,3,0,0,9,0,0,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0],
              [0,0,1,0,9,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,9,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0],
-             [0,9,9,9,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+             [0,0,0,0,9,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,5,0,0],
+             [0,9,9,9,9,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
 # ! Means not implemented
 chars = [" ", "Y", "E", "$", "^", "/", "B", ":", "!", "#", "?"] # Characters that correlate with the numbers with "?" at the end
@@ -43,7 +43,7 @@ ca_chingInTheBank = 0 # Player moneys
 # ----------------------------------------- SET UP THE FUNCTIONS -----------------------------------------
 # create the def() functions for the program here
 def printBoard():
-    stats = f"Player moneys: {ca_chingInTheBank}"
+    stats = f"Player moneys: {ca_chingInTheBank}\nPlayer health: {playerHealth}HP"
     print('\033[2J\033[0;0H' + '\n'.join([''.join([(ColourChars[gameBoard[i][j]] if (i, j) in foundBoard else ColourChars[-1]) for j in range(len(gameBoard[i]))]) for i in range(len(gameBoard))]) + '\n\033[35m' + stats + '\033[0m\n\n' + '\n'.join(toprints), end='')
 
 def newprint(txt):
@@ -77,6 +77,9 @@ def movedOn(typ):
     elif typ == 3:
         global ca_chingInTheBank
         ca_chingInTheBank += 1
+    elif typ == 4:
+        global playerHealth
+        playerHealth -= 10
 
 def moveBy(byx, byy):
     global playerX, playerY
