@@ -15,12 +15,12 @@ playerAttack = 10 # create a variable to store the player's attack power
 # 10 = open chest
 gameBoard = [[0,3,0,0,9,0,0,0,0,3,0,0,4,0,0,0,0,0,2,0,0,0,0,0,0],
              [0,0,1,0,9,3,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0],
-             [0,0,0,0,9,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,5,0,0],
+             [0,0,0,0,9,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,6,5,0,0],
              [0,9,9,9,9,0,8,0,0,4,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
 chars = [" ", "Y", "E", "$", "^", "/", "B", ":", "O", "#", "U", "?"] # Characters that correlate with the numbers with "?" at the end
-ColourChars = [" ", "\033[96mY", "\033[38;5;166mE", "\033[93m$", "\033[32m^", "\033[94m/", "\033[31mB", "\033[90m:", "\033[93mO", "\033[97m#", "\033[38;5;52mU", "\033[90m?"] # The same as above but with COLOURS
+ColourChars = [" ", "\033[96mY", "\033[38;5;166mE", "\033[93m$", "\033[32m^", "\033[94m/", "\033[38;5;88mB", "\033[90m:", "\033[93mO", "\033[97m#", "\033[38;5;52mU", "\033[90m?"] # The same as above but with COLOURS
 
 foundBoard = [] # The board that you have discovered
 
@@ -42,8 +42,10 @@ gameBoard[playerY][playerX] = 7
 ens = {}
 for y in range(len(gameBoard)):
     for x in range(len(gameBoard[y])):
-        if gameBoard[y][x] == 2:
+        if gameBoard[y][x] == 2: # Regular enemy
             ens[(y, x)] = 10 # Health of enemy
+        elif gameBoard[y][x] == 6: # Boss
+            ens[(y, x)] = 50 # Health of boss
 
 toprints = [] # Setup the blank list of things that will be printed
 ca_chingInTheBank = 0 # Player moneys
@@ -107,7 +109,7 @@ def movedOn(typ, tx, ty): # You moved onto a tile
         global inventory
         inventory["light"] = True
         return 10
-    elif typ == 2:
+    elif typ in [2, 6]: # Is an enemy or boss
         global ens
         atk = random.randint(0, playerAttack)
         newprint("You hit the enemy for %iHP!"%atk)
