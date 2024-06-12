@@ -13,14 +13,14 @@ playerAttack = 10 # create a variable to store the player's attack power
 # Create a 5x5 game board. 0 = empty, 1 = player, 2 = enemy, 3 = treasure, 4 = trap, 5 = exit, 6 = boss, 7 = been there, 8 = chest, 9 = wall
 # Anything beyond 10 will not be put directly onto the board, but rather will be put there as an effect; (If need another base tile move 'been there' to a higher value)
 # 10 = open chest
-gameBoard = [[0,3,0,0,9,0,0,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0],
-             [0,0,1,0,9,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+gameBoard = [[0,3,0,0,9,0,0,0,0,3,0,0,4,0,0,0,0,0,2,0,0,0,0,0,0],
+             [0,0,1,0,9,3,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0],
              [0,0,0,0,9,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,5,0,0],
-             [0,9,9,9,9,0,8,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+             [0,9,9,9,9,0,8,0,0,4,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
 chars = [" ", "Y", "E", "$", "^", "/", "B", ":", "O", "#", "U", "?"] # Characters that correlate with the numbers with "?" at the end
-ColourChars = [" ", "\033[96mY", "\033[32mE", "\033[93m$", "\033[32m^", "\033[94m/", "\033[31mB", "\033[90m:", "\033[93mO", "\033[97m#", "\033[38;5;52mU", "\033[90m?"] # The same as above but with COLOURS
+ColourChars = [" ", "\033[96mY", "\033[38;5;166mE", "\033[93m$", "\033[32m^", "\033[94m/", "\033[31mB", "\033[90m:", "\033[93mO", "\033[97m#", "\033[38;5;52mU", "\033[90m?"] # The same as above but with COLOURS
 
 foundBoard = [] # The board that you have discovered
 
@@ -38,7 +38,13 @@ gameBoard[playerY][playerX] = 7
 #     toputy = random.randint(0,4)
 # gameBoard[toputy][toputx] = 5
 
-# ----------------------------------------- SET UP NON-CONSTANT VARIABLES -----------------------------------------
+# Find all enemies and keep track of them
+ens = {}
+for y in range(len(gameBoard)):
+    for x in range(len(gameBoard[y])):
+        if gameBoard[y][x] == 2:
+            ens[(y, x)] = 10 # Health of enemy
+
 toprints = [] # Setup the blank list of things that will be printed
 ca_chingInTheBank = 0 # Player moneys
 inventory = {"light": False} # The player's inventory; with nothing in it.
@@ -79,13 +85,14 @@ def EndGame(win, msg):
     newprint('Game over! You %s!\033[0m'%('win' if win else 'loose'))
     stop_listening()
 
-def get_hurt(minusHP):
+def get_hurt(minusHP, hurtBy):
     global playerHealth
     playerHealth -= minusHP
+    newprint("You got hurt by %s for %iHP!"%(hurtBy, minusHP))
     if playerHealth <= 0:
         EndGame(False, "You've run out of life!")
 
-def movedOn(typ): # You moved onto a tile
+def movedOn(typ, tx, ty): # You moved onto a tile
     # Once-off tiles
     if typ == 5: # Exit
         EndGame(True, 'You have reached the exit!')
@@ -93,13 +100,24 @@ def movedOn(typ): # You moved onto a tile
         global ca_chingInTheBank
         ca_chingInTheBank += 1
     elif typ == 4: # Trap
-        get_hurt(10)
+        get_hurt(10, "a trap")
     
     # Tiles that change
     if typ == 8: # Chest
         global inventory
         inventory["light"] = True
         return 10
+    elif typ == 2:
+        global ens
+        atk = random.randint(0, playerAttack)
+        newprint("You hit the enemy for %iHP!"%atk)
+        ens[(ty, tx)] -= atk
+        if ens[(ty, tx)] <= 0:
+            newprint('You killed the enemy!')
+            gameBoard[ty][tx] = 3
+            return False
+        get_hurt(random.randint(0, 5), "the enemy")
+        return False # Do not allow you to move into enemies
 
     # And if it isn't a tile that changes above, turn it into a blank
     return 7
@@ -114,9 +132,10 @@ def moveBy(byx, byy):
     if newPos == 9:
         newprint('You cannot move there - there is a wall in the way!')
         return
-    playerX, playerY = x, y
-    res = movedOn(newPos)
-    gameBoard[playerY][playerX] = res
+    res = movedOn(newPos, x, y)
+    if res != False:
+        playerX, playerY = x, y
+        gameBoard[playerY][playerX] = res
 
 def movePlayer(direction):
     direction = direction.lower()
