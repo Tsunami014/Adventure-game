@@ -15,7 +15,7 @@ gameBoard = [[0,3,0,0,9,0,0,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0],
              [0,0,1,0,9,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
              [0,0,0,0,9,0,0,3,0,0,4,0,0,0,0,0,0,0,0,0,0,0,5,0,0],
              [0,9,9,9,9,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+             [0,0,0,0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0]]
 
 # ! Means not implemented
 chars = [" ", "Y", "E", "$", "^", "/", "B", ":", "!", "#", "?"] # Characters that correlate with the numbers with "?" at the end
@@ -66,20 +66,25 @@ def findNewSquares():
     check(md(0, -1))
     check(md(1, -1))
 
-def EndGame(win):
-    newprint('Game over! You %s!'%('win' if win else 'loose'))
+def EndGame(win, msg):
+    newprint(('\033[32m' if win else '\033[91m') + msg)
+    newprint('Game over! You %s!\033[0m'%('win' if win else 'loose'))
     stop_listening()
+
+def get_hurt(minusHP):
+    global playerHealth
+    playerHealth -= minusHP
+    if playerHealth <= 0:
+        EndGame(False, "You've run out of life!")
 
 def movedOn(typ):
     if typ == 5:
-        newprint('You have reached the exit!')
-        EndGame(True)
+        EndGame(True, 'You have reached the exit!')
     elif typ == 3:
         global ca_chingInTheBank
         ca_chingInTheBank += 1
     elif typ == 4:
-        global playerHealth
-        playerHealth -= 10
+        get_hurt(10)
 
 def moveBy(byx, byy):
     global playerX, playerY
