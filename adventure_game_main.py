@@ -151,9 +151,43 @@ def movePlayer(direction):
         moveBy(-1, 0)
     findNewSquares(dist=(2 if inventory["light"] else 1))
 
+def move_enemies():
+    global ens, gameBoard
+    nens = {}
+    def check(x, y, curpos):
+        if y < 0 or y > len(gameBoard)-1 or x < 0 or x > len(gameBoard[y])-1:
+            return False
+        if gameBoard[y][x] == 0:
+            nens[(y, x)] = ens[curpos]
+            gameBoard[y][x] = gameBoard[curpos[0]][curpos[1]]
+            gameBoard[curpos[0]][curpos[1]] = 0
+            return True
+        return False
+    def mod(byX, byY, pos):
+        return (pos[1] + byX, pos[0] + byY)
+    for pos in ens:
+        find = lambda x, y: check(*mod(x, y, pos), pos)
+        spaces = [
+            (1, 1),
+            (1, 0),
+            (1, -1),
+            (0, 1),
+            (0, -1),
+            (-1, 1),
+            (-1, 0),
+            (-1, -1)
+        ]
+        # Keep going until you get a True, then go to the next enemy
+        random.shuffle(spaces)
+        for i in spaces:
+            if find(*i):
+                break
+    ens = nens
+
 def onpress(key):
     global toprints
     toprints = []
+    move_enemies()
     if key in 'wsad':
         movePlayer(key)
     printBoard()
