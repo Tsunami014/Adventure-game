@@ -117,6 +117,7 @@ def movedOn(typ, tx, ty): # You moved onto a tile
         if ens[(ty, tx)] <= 0:
             newprint('You killed the enemy!')
             gameBoard[ty][tx] = 3
+            ens.pop((ty, tx))
             return False
         get_hurt(random.randint(0, 5), "the enemy")
         return False # Do not allow you to move into enemies
@@ -166,23 +167,31 @@ def move_enemies():
     def mod(byX, byY, pos):
         return (pos[1] + byX, pos[0] + byY)
     for pos in ens:
+        if random.randint(0, 10) >= 7 or (abs(pos[1] - playerX) <= 2 and abs(pos[0] - playerY) <= 2):
+            nens[pos] = ens[pos]
+            continue
         find = lambda x, y: check(*mod(x, y, pos), pos)
         spaces = [
-            (1, 1),
+            #(1, 1),
             (1, 0),
-            (1, -1),
+            #(1, -1),
             (0, 1),
             (0, -1),
             (-1, 1),
             (-1, 0),
-            (-1, -1)
+            #(-1, -1)
         ]
         # Keep going until you get a True, then go to the next enemy
         random.shuffle(spaces)
+        found = False
         for i in spaces:
             if find(*i):
+                found = True
                 break
+        if not found:
+            nens[pos] = ens[pos]
     ens = nens
+    newprint(len(ens))
 
 def onpress(key):
     global toprints
