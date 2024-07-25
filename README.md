@@ -1,3 +1,6 @@
+# Adventure game
+Really cool, text based, top down, not very far through development, probably won't continue because working on other things but you never know
+
 # Are you ready player one?
 
 This is a quick start guide for creating your code files. 
